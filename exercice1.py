@@ -1,3 +1,11 @@
+class DegatsInvalideError(Exception):
+    pass
+
+
+class ForceInvalideError(Exception):
+    pass
+
+
 class Personnage:
     def __init__(self, nom: str, points_de_vie: int):
         self.nom = nom
@@ -18,7 +26,7 @@ class Personnage:
 
     def subir_degats(self, degats):
         if degats < 0:
-            raise ValueError("Les dégâts ne peuvent pas être négatifs.")
+            raise DegatsInvalideError("Les dégâts ne peuvent pas être négatifs.")
         
         self.points_de_vie -= degats 
         
@@ -35,7 +43,7 @@ class Guerrier(Personnage):
     @force.setter
     def force(self, valeur):
         if valeur < 0:
-            raise ValueError("la force ne peut pas etre negative")
+            raise ForceInvalideError("la force ne peut pas etre negative")
         self._force = valeur
 
     def attaquer(self, cible):
@@ -71,6 +79,11 @@ def main():
     guerrier1.attaquer(personnageA)
     personnageA.se_presenter()
 
+    try: 
+        personnage1.subir_degats(-5)
+    except DegatsInvalideError as e:
+        print(f"erreur : {e}")
+        
 
 if __name__ == "__main__":
     main()  
