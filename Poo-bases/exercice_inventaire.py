@@ -1,6 +1,7 @@
 class ObjetIntrouvableError(Exception):
     pass
 
+
 class Objet:
     def __init__(self, nom: str, valeur: float):
         self.nom = nom
@@ -22,7 +23,7 @@ class Inventaire:
             if objet.nom == nom_objet:
                 self.objets.remove(objet)
                 return
-        raise ObjetIntrouvableError("aucun objet trouver")
+        raise ObjetIntrouvableError("aucun objet trouvé")
 
     def valeur_totale(self) -> float:
         totale = 0

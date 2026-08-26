@@ -6,6 +6,7 @@ class TropDeColisErreur(Exception):
 class TropDeColisFragileError(Exception):
     pass
 
+
 class PoidsMaxDEpasseError(Exception):
     pass
 
@@ -177,6 +178,7 @@ def main():
         print(livreur1.calculer_cout([colis4, colis8, colis1, colis9, colis5, colis6, colis7, colis10, colis11]))
     except TropDeColisErreur as e:
         print(f"Erreur: {e}") 
+
 
 if __name__ == "__main__":
     main()

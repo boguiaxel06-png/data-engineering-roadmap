@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+
 class MoyenPaiement(ABC):
     def __init__(self, titulaire: str):
         self.titulaire = titulaire
@@ -37,13 +38,9 @@ def main():
     except TypeError as e:
         print(f"Erreur: {e}")
 
+
 if __name__ == "__main__":
     main()
-
-#mais ici je n'ai pas creer l'erreur personnaliser en haut est ce correcte
-
-
-    
 
 
             

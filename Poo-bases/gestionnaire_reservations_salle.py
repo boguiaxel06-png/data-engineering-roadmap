@@ -1,8 +1,10 @@
 class PlageHorraireInvalideError(Exception):
     pass
 
+
 class HeureInvalideError(Exception):
     pass
+
 
 class CreneauOccupeError(Exception):
     pass
