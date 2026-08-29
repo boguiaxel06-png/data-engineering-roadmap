@@ -15,6 +15,24 @@ def ajouter_tache(description_tache: str, priorite: str = "moyenne"):
     connexion.commit()
     connexion.close()
 
+def lister_tache():
+    connexion = sqlite3.connect("taches.db")
+    curseur = connexion.cursor()
+    curseur.execute("select * from taches")
+    taches = curseur.fetchall()
+    for tache in taches:
+        print(f"NUMERO DE TACHE: {tache[0]}")
+        print(f"DESCRIPTION : {tache[1]}")
+        print(f"DATE DU DEBUT : {tache[2]}")
+        print(f"DATE DE FIN : {tache[3]}")
+        print(f"STATUT : {tache[4]}")
+        print(f"PRIORITE : {tache[5]}")
+        print(f"TEMPS ESTIME: {tache[6]}")
+        print(f"TEMPS PASSE : {tache[7]}")
+        #JE NE SAVAIS PAS SI JE POUVAIS TOUT AVEC UN PRINT
+        #ET COMMENT GERER LES CAS AVEC NONE
+
+    connexion.close()
 
 
 def main():
@@ -23,5 +41,9 @@ def main():
 
     ajouter_tache("Réviser SQL", "eleve")
     print("Tâche ajoutée.")
+
+    lister_tache()
+
+    
 if __name__ == "__main__":
     main()
