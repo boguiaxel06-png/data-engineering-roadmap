@@ -29,8 +29,7 @@ def lister_tache():
         print(f"PRIORITE : {tache[5]}")
         print(f"TEMPS ESTIME: {tache[6]}")
         print(f"TEMPS PASSE : {tache[7]}")
-        #JE NE SAVAIS PAS SI JE POUVAIS TOUT AVEC UN PRINT
-        #ET COMMENT GERER LES CAS AVEC NONE
+
 
     connexion.close()
 
@@ -39,6 +38,15 @@ def terminer_tache(id_tache: int):
     curseur = connexion.cursor()
 
     curseur.execute("update taches set statut = 'terminee' where id_tache = ?", (id_tache,))
+
+    connexion.commit()
+    connexion.close()
+
+def supprimer_tache(id_tache: int):
+    connexion = sqlite3.connect("taches.db")
+    curseur = connexion.cursor()
+
+    curseur.execute("delete from taches where id_tache = ?", (id_tache,))
 
     connexion.commit()
     connexion.close()
@@ -52,6 +60,7 @@ def main():
     print("Tâche ajoutée.")
 
     terminer_tache(1)
+    supprimer_tache(2)
 
     lister_tache()
 
