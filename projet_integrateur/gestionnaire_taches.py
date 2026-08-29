@@ -34,6 +34,15 @@ def lister_tache():
 
     connexion.close()
 
+def terminer_tache(id_tache: int):
+    connexion = sqlite3.connect("taches.db")
+    curseur = connexion.cursor()
+
+    curseur.execute("update taches set statut = 'terminee' where id_tache = ?", (id_tache,))
+
+    connexion.commit()
+    connexion.close()
+
 
 def main():
     initialiser_bdd()
@@ -42,8 +51,10 @@ def main():
     ajouter_tache("Réviser SQL", "eleve")
     print("Tâche ajoutée.")
 
+    terminer_tache(1)
+
     lister_tache()
 
-    
+
 if __name__ == "__main__":
     main()
