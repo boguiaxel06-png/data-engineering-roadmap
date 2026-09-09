@@ -51,19 +51,60 @@ def supprimer_tache(id_tache: int):
     connexion.commit()
     connexion.close()
 
+def menu():
+    while True:
+        print("HEY!!! QUE VOULEZ VOUS FAIRE")
+        print("---- GESTIONNAIAIRE DE TACHE ----")
+        print("Choix 1: Ajouter une tache")
+        print("Choix 2: Lister une tache")
+        print("Choix 3: Terminer une tache")
+        print("Choix 4: supprimer une tache")
+        print("choix 5: SORTIR")
+
+        try:
+            choix = int(input("ENTREZ LE NOMBRE CORRESPONDANT"))
+        except ValueError:
+            print("Choix invalide, entrez un nombre.")
+            continue
+         
+        if choix == 1:
+            description_tache = input("Entrez la description de votre tache")
+            priorite = input("qu'elle est sa priorite(faible/ moyenne/ elevee)")
+            try:
+                ajouter_tache(description_tache, priorite)
+                print("Tache ajoutee avec succes!!!")
+            except sqlite3.OperationalError:
+                print("Priorite invalide. Entrez faible, moyenne ou eleve.")
+                continue
+            ajouter_tache(description_tache, priorite)
+            print("Tache ajouter avec succes!!!")
+        elif choix == 2:
+            lister_tache()
+        elif choix == 3:
+            try:
+                id_tache = int(input("entrer le numero de la tache a terminer"))
+            except ValueError:
+                print("ID invalide, entrer un nombre")
+                continue            
+            terminer_tache(id_tache)
+            print(f"Tache numero {id_tache} terminer avec succes!!!")
+        elif choix == 4:
+            try:
+                id_tache = int(input("entrer le numero de la tache a supprimer"))
+            except ValueError:
+                print("ID invalide, entrer un nombre")
+                continue
+            supprimer_tache(id_tache)
+            print(f"Tache numero {id_tache} supprimer avec succes!!!")
+        elif choix == 5:
+            print("a plus tard!!!")
+            break
+        else:
+            print("Choix Invalide")
+    
 
 def main():
-    initialiser_bdd()
-    print("Base de données initialisée avec succès.")
-
-    ajouter_tache("Réviser SQL", "eleve")
-    print("Tâche ajoutée.")
-
-    terminer_tache(1)
-    supprimer_tache(2)
-
-    lister_tache()
-
+    menu()
 
 if __name__ == "__main__":
     main()
