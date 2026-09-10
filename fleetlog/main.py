@@ -1,14 +1,14 @@
-from models import Camion, Fourgonnette
+from models import Truck, Van
 from storage import JSONStorage
-from services import GestionnaireFlotte
+from services import FleetManager
 from exceptions import (
-    KilometrageInvalideError,
-    ImmatriculationInvalideError,
-    VehiculeNonTrouveError,
+    InvalidMileageError,
+    InvalidRegistrationError,
+    VehicleNotFoundError,
 )
 
 
-def afficher_menu():
+def display_menu():
     print("\n=== FleetLog - Gestion de Flotte ===")
     print("1. Ajouter un Camion")
     print("2. Ajouter une Fourgonnette")
@@ -21,77 +21,77 @@ def afficher_menu():
 
 def main():
     storage = JSONStorage("flotte.json")
-    gestionnaire = GestionnaireFlotte(storage)
+    fleet_manager = FleetManager(storage)
 
     while True:
-        afficher_menu()
-        choix = input("Votre choix : ").strip()
+        display_menu()
+        choice = input("Votre choix : ").strip()
 
         try:
-            if choix == "1":
-                immatriculation = input("Immatriculation : ").strip()
-                marque = input("Marque : ").strip()
-                kilometrage = float(input("Kilometrage : "))
-                capacite = float(input("Capacite de charge (kg) : "))
-                nombre_essieux = int(input("Nombre d'essieux : "))
+            if choice == "1":
+                registration = input("Immatriculation : ").strip()
+                brand = input("Marque : ").strip()
+                mileage = float(input("Kilometrage : "))
+                max_load = float(input("Capacite de charge (kg) : "))
+                axle_count = int(input("Nombre d'essieux : "))
 
-                camion = Camion(immatriculation, marque, kilometrage, capacite, nombre_essieux)
-                gestionnaire.ajouter_vehicule(camion)
+                truck = Truck(registration, brand, mileage, max_load, axle_count)
+                fleet_manager.add_vehicle(truck)
                 print("Camion ajouté avec succès !")
 
-            elif choix == "2":
-                immatriculation = input("Immatriculation : ").strip()
-                marque = input("Marque : ").strip()
-                kilometrage = float(input("Kilometrage : "))
-                capacite = float(input("Capacite de charge (kg) : "))
+            elif choice == "2":
+                registration = input("Immatriculation : ").strip()
+                brand = input("Marque : ").strip()
+                mileage = float(input("Kilometrage : "))
+                max_load = float(input("Capacite de charge (kg) : "))
                 refrigerated = input("Réfrigérée ? (o/n) : ").strip().lower() == "o"
 
-                fourgonnette = Fourgonnette(immatriculation, marque, kilometrage, capacite, refrigerated)
-                gestionnaire.ajouter_vehicule(fourgonnette)
+                van = Van(registration, brand, mileage, max_load, refrigerated)
+                fleet_manager.add_vehicle(van)
                 print("Fourgonnette ajoutée avec succès !")
 
-            elif choix == "3":
+            elif choice == "3":
                 print("\n--- LISTE DE TOUS LES VEHICULES ---")
-                if not gestionnaire.vehicules:
+                if not fleet_manager.vehicles:
                     print("Aucun véhicule dans la flotte.")
                 else:
-                    for vehicule in gestionnaire.vehicules:
+                    for vehicle in fleet_manager.vehicles:
                         print(
-                            f"IMMATRICULATION : {vehicule.immatriculation} | "
-                            f"MARQUE : {vehicule.marque} | "
-                            f"KILOMETRAGE : {vehicule.kilometrage} km | "
-                            f"CAPACITE : {vehicule.capacite_charge_kg} kg"
+                            f"IMMATRICULATION : {vehicle.registration} | "
+                            f"MARQUE : {vehicle.brand} | "
+                            f"KILOMETRAGE : {vehicle.mileage} km | "
+                            f"CAPACITE : {vehicle.max_load_kg} kg"
                         )
-                    cout_total = gestionnaire.calculer_cout_total_entretien()
-                    print(f"\nCoût total d'entretien : {cout_total:.2f} €")
+                    total_cost = fleet_manager.calculate_total_maintenance_cost()
+                    print(f"\nCoût total d'entretien : {total_cost:.2f} €")
 
-            elif choix == "4":
-                immatriculation = input("Entrer l'immatriculation : ").strip()
-                vehicule = gestionnaire.rechercher_vehicule(immatriculation)
-                print(f"\n[TROUVÉ] {vehicule}")
+            elif choice == "4":
+                registration = input("Entrer l'immatriculation : ").strip()
+                vehicle = fleet_manager.find_vehicle(registration)
+                print(f"\n[TROUVÉ] {vehicle}")
 
-            elif choix == "5":
-                immatriculation = input("Entrer l'immatriculation : ").strip()
-                vehicule = gestionnaire.rechercher_vehicule(immatriculation)
-                km_parcourus = float(input("Entrer le nombre de km parcourus : "))
-                
-                vehicule.enregistrer_trajet(km_parcourus)
-                gestionnaire.storage.sauvegarder(gestionnaire.vehicules)
+            elif choice == "5":
+                registration = input("Entrer l'immatriculation : ").strip()
+                vehicle = fleet_manager.find_vehicle(registration)
+                distance = float(input("Entrer le nombre de km parcourus : "))
+
+                vehicle.add_trip(distance)
+                fleet_manager.save_fleet()
                 print("Trajet enregistré avec succès !")
 
-            elif choix == "6":
-                immatriculation = input("Entrer l'immatriculation : ").strip()
-                gestionnaire.supprimer_vehicule(immatriculation)
+            elif choice == "6":
+                registration = input("Entrer l'immatriculation : ").strip()
+                fleet_manager.remove_vehicle(registration)
                 print("Véhicule supprimé avec succès !")
 
-            elif choix == "0":
+            elif choice == "0":
                 print("Au revoir !")
                 break
 
             else:
                 print("Choix invalide, réessayez.")
 
-        except (KilometrageInvalideError, ImmatriculationInvalideError, VehiculeNonTrouveError) as e:
+        except (InvalidMileageError, InvalidRegistrationError, VehicleNotFoundError) as e:
             print(f"\n[ERREUR MÉTIER] {e}")
         except ValueError:
             print("\n[ERREUR SAISIE] Saisie numérique invalide. Réessayez.")
