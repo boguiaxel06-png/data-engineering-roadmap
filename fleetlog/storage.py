@@ -18,4 +18,3 @@ class JSONStorage:
                     return json.load(f)
             except json.JSONDecodeError:
                 return{"vehicules" : []}
-
