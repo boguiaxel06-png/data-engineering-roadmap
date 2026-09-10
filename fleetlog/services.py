@@ -1,44 +1,43 @@
-from models import Vehicule, Camion, Fourgonnette
+from models import Vehicle, Truck, Van
 from storage import JSONStorage
-from exceptions import ImmatriculationInvalideError, VehiculeNonTrouveError
+from exceptions import VehicleNotFoundError
 
-class GestionnaireFlotte:
+
+class FleetManager:
     def __init__(self, storage: JSONStorage):
         self.storage = storage
-        self.vehicules: list[Vehicule] = []
-        self.charger_flotte()
+        self.vehicles: list[Vehicle] = []
+        self.load_fleet()
 
-    def ajouter_vehicule(self, vehicule: Vehicule):
-        self.vehicules.append(vehicule)
-        self.sauvegarder_flotte()
+    def add_vehicle(self, vehicle: Vehicle):
+        self.vehicles.append(vehicle)
+        self.save_fleet()
 
-    def sauvegarder_flotte(self):
-        donnees = {
-            "vehicules": [v.to_dict() for v in self.vehicules]
+    def save_fleet(self):
+        data = {
+            "vehicles": [v.to_dict() for v in self.vehicles]
         }
-        self.storage.sauvegarder(donnees)
-    
-    def charger_flotte(self):
-        donnes = self.storage.charger()
-        for m_dict in donnes.get("vehicules", []):
-            type_v = m_dict.get("type")
-            if type_v == "Camion":
-                self.vehicules.append(Camion.from_dict(m_dict))
-            if type_v == "Fourgonnette":
-                self.vehicules.append(Fourgonnette.from_dict(m_dict))
+        self.storage.save(data)
 
-    def rechercher_vehicule(self, immatriculation: str) -> Vehicule:
-        for vehicule in self.vehicules:
-            if immatriculation == vehicule.immatriculation:
-                return vehicule
-        raise VehiculeNonTrouveError("Véhicule non trouvé")
+    def load_fleet(self):
+        data = self.storage.load()
+        for v_dict in data.get("vehicles", []):
+            vehicle_type = v_dict.get("type")
+            if vehicle_type == "Truck":
+                self.vehicles.append(Truck.from_dict(v_dict))
+            elif vehicle_type == "Van":
+                self.vehicles.append(Van.from_dict(v_dict))
 
-    def supprimer_vehicule(self, immatriculation: str):
-        s_vehicule = self.rechercher_vehicule(immatriculation)
-        self.vehicules.remove(s_vehicule)
-        self.sauvegarder_flotte()
+    def find_vehicle(self, registration: str) -> Vehicle:
+        for vehicle in self.vehicles:
+            if registration == vehicle.registration:
+                return vehicle
+        raise VehicleNotFoundError(registration)
 
-    def calculer_cout_total_entretien(self) -> float:
-        total_cout = sum(v.calculer_cout_entretien() for v in self.vehicules)
-        return total_cout
+    def remove_vehicle(self, registration: str):
+        vehicle = self.find_vehicle(registration)
+        self.vehicles.remove(vehicle)
+        self.save_fleet()
 
+    def calculate_total_maintenance_cost(self) -> float:
+        return sum(v.calculate_maintenance_cost() for v in self.vehicles)
