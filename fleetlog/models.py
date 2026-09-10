@@ -2,105 +2,99 @@ from abc import ABC, abstractmethod
 from exceptions import InvalidMileageError, InvalidRegistrationError
 
 
-class Vehicule(ABC):
-    def __init__(self, registration: str, marque: str, mileage: float, capacite_charge_kg: float):
+class Vehicle(ABC):
+    def __init__(self, registration: str, brand: str, mileage: float, max_load_kg: float):
         self.registration = registration
-        self.marque = marque
+        self.brand = brand
         self.mileage = mileage
-        self.capacite_charge_kg = capacite_charge_kg
+        self.max_load_kg = max_load_kg
 
     @property
     def registration(self) -> str:
         return self._registration
 
     @registration.setter
-    def registration(self, valeur: str):
-        if not valeur or valeur.strip() == "":
-            raise InvalidRegistrationError("L'immatriculation ne peut pas être vide.")
-        self._registration = valeur
+    def registration(self, value: str):
+        if not value or value.strip() == "":
+            raise InvalidRegistrationError(value)
+        self._registration = value
 
     @property
     def mileage(self) -> float:
         return self._mileage
 
     @mileage.setter
-    def mileage(self, valeur: float):
-        if valeur < 0:
-            raise InvalidMileageError("Le kilométrage ne peut pas être négatif.")
-        
-        if hasattr(self, "_kilometrage") and valeur < self._kilometrage:
-            raise InvalidMileageError("Le kilométrage ne peut pas être inférieur au kilométrage actuel.")
-
-        self._mileage = valeur
+    def mileage(self, value: float):
+        current_mileage = getattr(self, "_mileage", 0)
+        if value < 0 or value < current_mileage:
+            raise InvalidMileageError(value, current_mileage)
+        self._mileage = value
 
     @abstractmethod
-    def calculer_cout_entretien(self) -> float:
+    def calculate_maintenance_cost(self) -> float:
         pass
 
-    def ajouter_trajet(self, km_parcourus: float):
-        if km_parcourus < 0:
-            raise InvalidMileageError("Les kilomètres parcourus ne peuvent pas être négatifs.")
-        self.registration += km_parcourus
+    def add_trip(self, distance: float):
+        if distance < 0:
+            raise InvalidMileageError(distance, self.mileage)
+        self.mileage += distance
 
     def to_dict(self) -> dict:
         return {
-            "registration": self.immatriculation,
-            "marque": self.marque,
-            "mileage": self.kilometrage,
-            "capacite_charge_kg": self.capacite_charge_kg
+            "registration": self.registration,
+            "brand": self.brand,
+            "mileage": self.mileage,
+            "max_load_kg": self.max_load_kg
         }
 
 
-class Camion(Vehicule):
-    def __init__(self, registration: str, marque: str, mileage: float, capacite_charge_kg: float, nombre_essieux: int):
-        super().__init__(registration, marque, mileage, capacite_charge_kg)
-        self.nombre_essieux = nombre_essieux
+class Truck(Vehicle):
+    def __init__(self, registration: str, brand: str, mileage: float, max_load_kg: float, axle_count: int):
+        super().__init__(registration, brand, mileage, max_load_kg)
+        self.axle_count = axle_count
 
-    def calculer_cout_entretien(self) -> float:
-        resultat = (self.registration * 0.15) + (self.nombre_essieux * 5000)
-        return resultat
+    def calculate_maintenance_cost(self) -> float:
+        return (self.mileage * 0.15) + (self.axle_count * 5000)
 
     def to_dict(self) -> dict:
-        data = super().to_dict()  
-        data["type"] = "Camion"
-        data["nombre_essieux"] = self.nombre_essieux
+        data = super().to_dict()
+        data["type"] = "Truck"
+        data["axle_count"] = self.axle_count
         return data
 
     @classmethod
-    def from_dict(cls, data: dict) -> "Camion":
+    def from_dict(cls, data: dict) -> "Truck":
         return cls(
-            registration=data["immatriculation"],
-            marque=data["marque"],
-            mileage=data["kilometrage"],
-            capacite_charge_kg=data["capacite_charge_kg"],
-        nombre_essieux=data["nombre_essieux"]
+            registration=data["registration"],
+            brand=data["brand"],
+            mileage=data["mileage"],
+            max_load_kg=data["max_load_kg"],
+            axle_count=data["axle_count"]
         )
 
 
-class Fourgonnette(Vehicule):
-    def __init__(self, registration: str, marque: str, mileage: float, capacite_charge_kg: float, refrigerated: bool = False):
-        super().__init__(registration, marque, mileage, capacite_charge_kg)
+class Van(Vehicle):
+    def __init__(self, registration: str, brand: str, mileage: float, max_load_kg: float, refrigerated: bool = False):
+        super().__init__(registration, brand, mileage, max_load_kg)
         self.refrigerated = refrigerated
 
-    def calculer_cout_entretien(self) -> float:
-        if self.refrigerated:
-            resultat = self.kilometrage * 0.08 + 10000
-        else:
-            resultat = self.kilometrage * 0.08
-        return resultat
+    def calculate_maintenance_cost(self) -> float:
+        base_cost = self.mileage * 0.08
+        return base_cost + 10000 if self.refrigerated else base_cost
 
-    def to_dict(self) -> dict :
+    def to_dict(self) -> dict:
         data = super().to_dict()
-        data["type"] = "Fourgonnette"
+        data["type"] = "Van"
         data["refrigerated"] = self.refrigerated
         return data
 
     @classmethod
-    def from_dict(cls, data) -> "Fourgonnette":
+    def from_dict(cls, data: dict) -> "Van":
         return cls(
-            registration = data["immatriculation"],
-            marque = data["marque"],
-            mileage = data["kilometrage"],
-            capacite_charge_kg = data["capacite_charge_kg"],
-            refrigerated = data["refrigerated"]
+            registration=data["registration"],
+            brand=data["brand"],
+            mileage=data["mileage"],
+            max_load_kg=data["max_load_kg"],
+            refrigerated=data["refrigerated"]
         )
+    
