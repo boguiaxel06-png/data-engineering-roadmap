@@ -1,37 +1,37 @@
 from abc import ABC, abstractmethod
-from exceptions import KilometrageInvalideError, ImmatriculationInvalideError
+from exceptions import InvalidMileageError, InvalidRegistrationError
 
 
 class Vehicule(ABC):
-    def __init__(self, immatriculation: str, marque: str, kilometrage: float, capacite_charge_kg: float):
-        self.immatriculation = immatriculation
+    def __init__(self, registration: str, marque: str, mileage: float, capacite_charge_kg: float):
+        self.registration = registration
         self.marque = marque
-        self.kilometrage = kilometrage
+        self.mileage = mileage
         self.capacite_charge_kg = capacite_charge_kg
 
     @property
-    def immatriculation(self) -> str:
-        return self._immatriculation
+    def registration(self) -> str:
+        return self._registration
 
-    @immatriculation.setter
-    def immatriculation(self, valeur: str):
+    @registration.setter
+    def registration(self, valeur: str):
         if not valeur or valeur.strip() == "":
-            raise ImmatriculationInvalideError("L'immatriculation ne peut pas être vide.")
-        self._immatriculation = valeur
+            raise InvalidRegistrationError("L'immatriculation ne peut pas être vide.")
+        self._registration = valeur
 
     @property
-    def kilometrage(self) -> float:
-        return self._kilometrage
+    def mileage(self) -> float:
+        return self._mileage
 
-    @kilometrage.setter
-    def kilometrage(self, valeur: float):
+    @mileage.setter
+    def mileage(self, valeur: float):
         if valeur < 0:
-            raise KilometrageInvalideError("Le kilométrage ne peut pas être négatif.")
+            raise InvalidMileageError("Le kilométrage ne peut pas être négatif.")
         
         if hasattr(self, "_kilometrage") and valeur < self._kilometrage:
-            raise KilometrageInvalideError("Le kilométrage ne peut pas être inférieur au kilométrage actuel.")
+            raise InvalidMileageError("Le kilométrage ne peut pas être inférieur au kilométrage actuel.")
 
-        self._kilometrage = valeur
+        self._mileage = valeur
 
     @abstractmethod
     def calculer_cout_entretien(self) -> float:
@@ -39,25 +39,25 @@ class Vehicule(ABC):
 
     def ajouter_trajet(self, km_parcourus: float):
         if km_parcourus < 0:
-            raise KilometrageInvalideError("Les kilomètres parcourus ne peuvent pas être négatifs.")
-        self.kilometrage += km_parcourus
+            raise InvalidMileageError("Les kilomètres parcourus ne peuvent pas être négatifs.")
+        self.registration += km_parcourus
 
     def to_dict(self) -> dict:
         return {
-            "immatriculation": self.immatriculation,
+            "registration": self.immatriculation,
             "marque": self.marque,
-            "kilometrage": self.kilometrage,
+            "mileage": self.kilometrage,
             "capacite_charge_kg": self.capacite_charge_kg
         }
 
 
 class Camion(Vehicule):
-    def __init__(self, immatriculation: str, marque: str, kilometrage: float, capacite_charge_kg: float, nombre_essieux: int):
-        super().__init__(immatriculation, marque, kilometrage, capacite_charge_kg)
+    def __init__(self, registration: str, marque: str, mileage: float, capacite_charge_kg: float, nombre_essieux: int):
+        super().__init__(registration, marque, mileage, capacite_charge_kg)
         self.nombre_essieux = nombre_essieux
 
     def calculer_cout_entretien(self) -> float:
-        resultat = (self.kilometrage * 0.15) + (self.nombre_essieux * 5000)
+        resultat = (self.registration * 0.15) + (self.nombre_essieux * 5000)
         return resultat
 
     def to_dict(self) -> dict:
@@ -69,17 +69,17 @@ class Camion(Vehicule):
     @classmethod
     def from_dict(cls, data: dict) -> "Camion":
         return cls(
-            immatriculation=data["immatriculation"],
+            registration=data["immatriculation"],
             marque=data["marque"],
-            kilometrage=data["kilometrage"],
+            mileage=data["kilometrage"],
             capacite_charge_kg=data["capacite_charge_kg"],
         nombre_essieux=data["nombre_essieux"]
         )
 
 
 class Fourgonnette(Vehicule):
-    def __init__(self, immatriculation: str, marque: str, kilometrage: float, capacite_charge_kg: float, refrigerated: bool = False):
-        super().__init__(immatriculation, marque, kilometrage, capacite_charge_kg)
+    def __init__(self, registration: str, marque: str, mileage: float, capacite_charge_kg: float, refrigerated: bool = False):
+        super().__init__(registration, marque, mileage, capacite_charge_kg)
         self.refrigerated = refrigerated
 
     def calculer_cout_entretien(self) -> float:
@@ -98,10 +98,9 @@ class Fourgonnette(Vehicule):
     @classmethod
     def from_dict(cls, data) -> "Fourgonnette":
         return cls(
-            immatriculation = data["immatriculation"],
+            registration = data["immatriculation"],
             marque = data["marque"],
-            kilometrage = data["kilometrage"],
+            mileage = data["kilometrage"],
             capacite_charge_kg = data["capacite_charge_kg"],
             refrigerated = data["refrigerated"]
         )
-
